@@ -8,6 +8,7 @@
 import SwiftUI
 import CoreImage.CIFilterBuiltins
 
+
 struct MeView: View {
     @State private var name = "Anonymous"
     @State private var emailAddress = "you@yoursite.com"
@@ -48,6 +49,8 @@ struct MeView: View {
             .onChange(of: emailAddress) { _ in updateCode() }
         }
     }
+    
+   
     
     func updateCode() {
         qrCode = generateQRCode(from: "\(name)\n\(emailAddress)")
