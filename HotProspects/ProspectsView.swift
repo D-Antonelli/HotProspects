@@ -15,16 +15,23 @@ struct ProspectsView: View {
         case none, contacted, uncontacted
     }
     
+    enum SortType {
+        case none, name, mostRecent
+    }
+    
     @EnvironmentObject var prospects: Prospects
     
     @State private var isShowingScanner = false
     
     let filter: FilterType
     
+    @State private var sortKey: SortType = .none
+    
+    
     var body: some View {
         NavigationView {
             List {
-                ForEach(filteredProspects) { prospect in
+                ForEach(sortedProspects) { prospect in
                     HStack {
                         VStack(alignment: .leading) {
                             Text(prospect.name)
@@ -66,6 +73,25 @@ struct ProspectsView: View {
                         }
                     }
                 }
+                
+                Button {
+                    sortKey = .name
+                } label: {
+                    Text("Name sort")
+                }
+                
+                Button {
+                    sortKey = .mostRecent
+                } label: {
+                    Text("Most recent sort")
+                }
+                
+                Button {
+                    sortKey = .none
+                } label: {
+                    Text("Cancel sort")
+                }
+                
             }
             .navigationTitle(title)
             .toolbar {
@@ -76,7 +102,7 @@ struct ProspectsView: View {
                 }
             }
             .sheet(isPresented: $isShowingScanner) {
-                CodeScannerView(codeTypes: [.qr], simulatedData: "Paul Hudson\npaul@hackingwithswift.com", completion: handleScan)
+                CodeScannerView(codeTypes: [.qr], simulatedData: "Taylor Ryson\npaul@hackingwithswift.com", completion: handleScan)
             }
         }
         
@@ -158,6 +184,20 @@ struct ProspectsView: View {
             
         case .uncontacted:
             return prospects.people.filter { !$0.isContacted }
+        }
+    }
+    
+    
+    var sortedProspects: [Prospect] {
+        switch sortKey {
+        case .none:
+            return filteredProspects
+            
+        case .name:
+            return filteredProspects.sorted { $0.name < $1.name }
+            
+        case .mostRecent:
+            return filteredProspects.sorted { $0.dateAdded > $1.dateAdded }
         }
     }
 }
